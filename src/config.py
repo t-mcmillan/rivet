@@ -1,0 +1,4 @@
+DATA_PATH = "./data/"
+NOTES_PATH = DATA_PATH+"notes/"
+NOTES_EMBEDDED_PATH = DATA_PATH+"notes_embedded/"
+OBSIDIAN_VAULT = ""
