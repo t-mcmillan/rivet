@@ -15,10 +15,24 @@ class Writer:
         self.notebookMDName = self.notebook.split('.')[0]
         self.title = self.fileName.split('.')[0].replace("_", " ").capitalize()
 
+    def taggify(self, searchResults: list[dict]):
+        tagTemplate = "- [{name}, {page}]({name}) \n"
+        tags = []
+        # Always add the top result
+        tags.append(tagTemplate.format(name=searchResults[0]["file"], page=searchResults[0]["page"]))
+        searchResults.pop(0)
+        for result in searchResults:
+            if result["score"] > 0.7:
+                name = result["file"]
+                page = result["page"]
+                tags.append(tagTemplate.format(name=name, page=page))
+        self.tags = tags
+
     def write(self):
-        tags = f"- [heart.md page 2]({NOTES_PATH+"heart.md"}) \n- [blood_vessels.md page 2]({NOTES_PATH+"blood_vessels.md"}) \n- [nervous_system.md page 2]({NOTES_PATH+"nervous_system.md"}) \n"
-        content = template.format(title=self.title, notebook = f"[{self.notebookMDName}]({self.notebookMDName})", tags=tags)
-        with open(self.fileName.split('.')[0]+".md", "w") as mdFile:
+        # Convert tags list into string
+        tagsStr = ''.join(self.tags)
+        content = template.format(title=self.title, notebook = f"[{self.notebookMDName}]({self.notebookMDName})", tags=tagsStr)
+        with open(self.fileName, "w") as mdFile:
             mdFile.write(content)
 
 Writer("asdf", "adf").write()
