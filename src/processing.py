@@ -23,10 +23,12 @@ class Loader:
             reader = PdfReader(NOTES_PATH+self.fileName)
             number_of_pages = len(reader.pages)
             text = []
-            for i in range(len(number_of_pages)):
+            for i in range(number_of_pages):
                 page = reader.pages[i]
                 text.append(page.extract_text())
         self.text: list[str] = text
+        if ''.join(self.text) == '':
+            raise ValueError(f"The file {self.fileName} is either a non ediable pdf or has no content")
         return text
     
     def chunking(self, chunkLength: int = 1024):
@@ -39,7 +41,7 @@ class Loader:
                 pageChunks.append(page[chunkLength*i:chunkLength*(i+1)]) # splits the page into chunks of size chunkLength 
             chunks.append(pageChunks)
         self.chunks: list[list[str]] = chunks
-        print(chunks)
+        print(chunks, self.fileName)
         print(len(chunks[0]))
 
     def embed(self):
@@ -74,6 +76,13 @@ class Loader:
                 "embeddings": entryEmbeddings
             }
         }
+        # This part can be optimized, the code after this is redundant: this is for creating the notebook json if its is not there, but after 
+        # these is already a check if the notebook is there, but i check after i already read for it, so if its not there an error will be 
+        # thrown, so this code here is necessary, the code after not so much
+        if self.notebook not in notebooks:
+            with open(NOTES_EMBEDDED_PATH+self.notebook, 'w') as file:
+                json.dump('', file, indent=4)
+
         with open(NOTES_EMBEDDED_PATH+self.notebook, 'r+') as file:
             if self.notebook in notebooks:
                 entries = json.load(file)

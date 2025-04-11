@@ -69,8 +69,8 @@ class Matcher:
             return results
 
 #Matcher("asdf", "notebook1").search("see notes about different types of blood vessels")
-refs = Matcher("heart.md", "notebook1", ("#see", ")")).refExtractor()
-for r in refs:
-    ref = r["ref"]
-    print(ref)
-    Matcher("endocrine_system.md", "notebook1", ("#see", ")")).search(ref)
+#refs = Matcher("heart.md", "notebook1", ("#see", ")")).refExtractor()
+#for r in refs:
+#    ref = r["ref"]
+#    print(ref)
+#    Matcher("endocrine_system.md", "notebook1", ("#see", ")")).search(ref)
