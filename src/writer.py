@@ -35,5 +35,5 @@ class Writer:
         # Convert tags list into string
         tagsStr = ''.join(self.tags)
         content = template.format(title=self.title, notebook = f"[{self.notebookMDName}]({self.notebookMDName})", tags=tagsStr, fileName=self.fileName)
-        with open(self.fileName.split(".")[0]+".md", "w") as mdFile:
+        with open(OBSIDIAN_VAULT+self.fileName.split(".")[0]+".md", "w") as mdFile:
             mdFile.write(content)
