@@ -1,4 +1,4 @@
-from config import DATA_PATH, NOTES_PATH, NOTES_EMBEDDED_PATH
+from src.config import DATA_PATH, NOTES_PATH, NOTES_EMBEDDED_PATH
 from pypdf import PdfReader
 from fastembed import TextEmbedding
 import math

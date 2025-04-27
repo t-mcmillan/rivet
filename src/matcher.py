@@ -1,10 +1,10 @@
 from sklearn.metrics.pairwise import cosine_similarity
 from fastembed import TextEmbedding
-from config import DATA_PATH, NOTES_EMBEDDED_PATH, NOTES_PATH
+from src.config import DATA_PATH, NOTES_EMBEDDED_PATH, NOTES_PATH
 import json
 import numpy as np
 from numpy.linalg import norm
-from processing import Loader
+from src.processing import Loader
 
 # TODO generate a summary of the notes with ai (for math stuff figure out a way to integrate latex into the markdown)
 # For now it only looks for matches in a given notebook

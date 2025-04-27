@@ -1,4 +1,4 @@
-from config import NOTES_EMBEDDED_PATH, NOTES_PATH, DATA_PATH, OBSIDIAN_VAULT
+from src.config import NOTES_EMBEDDED_PATH, NOTES_PATH, DATA_PATH, OBSIDIAN_VAULT
 
 template = """
 # {title}
