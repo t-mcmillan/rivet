@@ -3,6 +3,7 @@ from src.matcher import Matcher
 from src.writer import Writer
 from src.config import DATA_PATH, NOTES_EMBEDDED_PATH, NOTES_PATH, OBSIDIAN_VAULT
 import os
+import json
 
 notebook = "notebook2"
 refMarker = ("#see", ")")
@@ -17,12 +18,20 @@ class Main:
         if ".gitignore" in notes:
             notes.remove(".gitignore")
         for index, note in enumerate(notes):
+            # Check if the pdf is already in the notebook
+            if notebook+".json" in os.listdir(NOTES_EMBEDDED_PATH):
+                with open(NOTES_EMBEDDED_PATH+notebook+".json", "r+") as file:
+                    data = json.load(file)
+                    if note in data.keys():
+                        print(f"File: {note} already in notebook: {notebook}")
+                        yield index
+                        continue
             loader = Loader(note, notebook)
             loader.extractText()
             loader.chunking(600)
             loader.embed()
             loader.save()
-            return index
+            yield index
      
     def write(self, refMarker):
         notes = os.listdir(NOTES_PATH)
@@ -36,5 +45,7 @@ class Main:
                 matches = matcher.search(ref["ref"])
                 writer.taggify(matches)
             writer.write()
-            return index
-
+            yield index
+#gen = Main().load("notebook2")
+#for value in gen:
+#    print(value)
