@@ -16,6 +16,7 @@ class Loader:
     def extractText(self) -> list[str]:
         """Returns a list of text, where each string in the list is the next of one page (index of list = page number)"""
         fileFormat = self.fileName.split(".")[1]
+        print(fileFormat)
         if fileFormat != "pdf": 
             with open(NOTES_PATH+self.fileName, 'r') as file:
                 text = [file.read()]

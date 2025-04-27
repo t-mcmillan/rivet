@@ -4,9 +4,11 @@ from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QSpacerItem, Q
 from PySide6.QtCore import Qt
 from PySide6.QtSvgWidgets import QSvgWidget
 from src.main import Main
+from src.config import NOTES_PATH
 
 svg_path = 'data/svg/'
 
+# TODO get this progress bar to update dynamically with the yields
 def clearLayout(layout):
     if layout is not None:
         while layout.count():
@@ -41,6 +43,7 @@ class DropBox(QWidget):
         self.label = QLabel("Click to select files or drag and drop them")
         self.layOut.addWidget(self.label, 0, 0, alignment=Qt.AlignCenter)
         self.layOut.setVerticalSpacing(20)
+        self.selected_files = []
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -57,6 +60,8 @@ class DropBox(QWidget):
                 row += 1
         if files == []:
             self.layOut.addWidget(QLabel("Click to select files or drag and drop them"), 0, 0, alignment=Qt.AlignCenter)
+        self.selected_files = files
+        self.fileName = files_formatted
 
     def mousePressEvent(self, event):
         # Check if the event is a left mouse click
@@ -72,21 +77,24 @@ class DropBox(QWidget):
                     row += 1
         if files == []:
             self.layOut.addWidget(QLabel("Click to select files or drag and drop them"), 0, 0, alignment=Qt.AlignCenter)
+        self.selected_files = files
+        self.fileName = files_formatted
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
 
         self.setWindowTitle("Rivet")
-        self.setGeometry(100, 100, 700, 600)
+        self.setGeometry(100, 100, 730, 600)
 
         # Layout and Widgets
-        layout = QGridLayout(self)
+        self.layOut = QGridLayout(self)
 
         self.label = QLabel("Select a vault")
         self.button = QPushButton("Select Obsidian Vault")
         self.dropbox = QScrollArea()
-        self.dropbox.setWidget(DropBox())
+        self.dropboxTemp = DropBox()
+        self.dropbox.setWidget(self.dropboxTemp)
         self.dropbox.setWidgetResizable(True)
         self.load = QPushButton("Go!")
         self.progressBar = QProgressBar()
@@ -107,23 +115,23 @@ class MainWindow(QWidget):
         """)
         self.refMarkerStart = QLineEdit("", placeholderText="Enter start reference marker")
         self.refMarkerEnd = QLineEdit("", placeholderText="Enter end reference marker")
+        self.notebook = QLineEdit("", placeholderText="Enter notebook name")
 
         self.button.clicked.connect(self.select_folder)
         self.load.clicked.connect(self.load_files)
-        print(self.refMarkerStart.text())
 
-        layout.addWidget(self.label, 0, 0)
-        layout.addWidget(self.button, 1, 0)
-        layout.addWidget(self.dropbox, 2, 0)
-        layout.addWidget(self.refMarkerStart, 3, 0)
-        layout.addWidget(self.refMarkerEnd, 4, 0)
-        layout.addWidget(self.load, 5, 0)
-        layout.addWidget(self.progressBar, 6, 0)
+        self.layOut.addWidget(self.label, 0, 0)
+        self.layOut.addWidget(self.button, 1, 0)
+        self.layOut.addWidget(self.notebook, 2, 0)
+        self.layOut.addWidget(self.dropbox, 3, 0)
+        self.layOut.addWidget(self.refMarkerStart, 4, 0)
+        self.layOut.addWidget(self.refMarkerEnd, 5, 0)
+        self.layOut.addWidget(self.load, 6, 0)
 
         # Add vertical spacers between the rows
-        layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding), 2, 0)  # Spacer between row 1 and 2
+        self.layOut.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding), 3, 0)  # Spacer between row 1 and 2
 
-        self.setLayout(layout)
+        self.setLayout(self.layOut)
 
     def select_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select Folder")
@@ -131,8 +139,39 @@ class MainWindow(QWidget):
             self.label.setText(f"Selected: {folder}")
         print(folder)
     
+    # Add alerts if things aren't filled out
     def load_files(self):
-        pass 
+        # Copy selected files to NOTES_PATH
+        self.selected_files = self.dropboxTemp.selected_files
+        self.fileNames = self.dropboxTemp.fileName
+        for i, file in enumerate(self.selected_files):
+            with open(file, 'rb') as file:
+                data = file.read()
+                if self.fileNames[i] not in os.listdir(NOTES_PATH):
+                    with open(NOTES_PATH+f"{self.fileNames[i]}", 'wb') as file:
+                        file.write(data)
+        
+        # Getting data
+        notebook = self.notebook.text()
+        refMarker = (self.refMarkerStart.text(), self.refMarkerEnd.text())
+
+        # Starting the progress bar
+        self.layOut.addWidget(self.progressBar, 7, 0)
+        total_progress = len(os.listdir(NOTES_PATH))*2
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximum(total_progress)
+        self.progressBar.setValue(0)
+
+        # Initialize main function
+        main = Main()
+        load_generator = main.load(notebook)
+        for index in load_generator:
+            self.progressBar.setValue(index)
+        write_generator = main.write(refMarker, notebook)
+        for index in write_generator:
+            index += total_progress/2 # So the progress bar doesn't reset
+            self.progressBar.setValue(index)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -12,11 +12,15 @@ class Main:
     # Load all pdfs in notes folder then TODO remove them, or maybe i dont need to remove them, if i already use the obsidian pdf folder 
     # from the start. If i dont, then i need to move them to the default pdf folder. Also i should keep all the data stuff in the obsidian
     # vault!! --> with markdowns it doesn't work: cause they show up in the graph, but pdfs are fine
-    # TODO check if file is already in notebook so i dont have to reload everything
+    # TODO separate notebooks in obsidian so i don't have one big db of notes, but each notebook has all the stuff it needs -> this way 
+    # each note is separate from eachother and you don't risk rewriting a certain note to the wrong notebook
+    # TODO add a way to connect different files to different notebooks
     def load(self, notebook):
         notes = os.listdir(NOTES_PATH)
         if ".gitignore" in notes:
             notes.remove(".gitignore")
+        if ".DS_Store" in notes:
+            notes.remove(".DS_Store")
         for index, note in enumerate(notes):
             # Check if the pdf is already in the notebook
             if notebook+".json" in os.listdir(NOTES_EMBEDDED_PATH):
@@ -33,10 +37,12 @@ class Main:
             loader.save()
             yield index
      
-    def write(self, refMarker):
+    def write(self, refMarker, notebook):
         notes = os.listdir(NOTES_PATH)
         if ".gitignore" in notes:
             notes.remove(".gitignore")
+        if ".DS_Store" in notes:
+            notes.remove(".DS_Store")
         for index, note in enumerate(notes):
             matcher = Matcher(note, notebook, refMarker)
             writer = Writer(note, notebook)
