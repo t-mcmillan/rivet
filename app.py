@@ -4,7 +4,8 @@ from PySide6.QtWidgets import QApplication, QWidget, QPushButton, QSpacerItem, Q
 from PySide6.QtCore import Qt
 from PySide6.QtSvgWidgets import QSvgWidget
 from src.main import Main
-from src.config import NOTES_PATH
+from src.init import createNotebook, createVault
+from src.config import NOTES_PATH, OBSIDIAN_VAULT
 
 svg_path = 'data/svg/'
 
@@ -141,19 +142,21 @@ class MainWindow(QWidget):
     
     # Add alerts if things aren't filled out
     def load_files(self):
+        # Getting data
+        notebook = self.notebook.text()
+        refMarker = (self.refMarkerStart.text(), self.refMarkerEnd.text())
+        createVault(OBSIDIAN_VAULT) # Change to selected vault TODO
+        createNotebook(OBSIDIAN_VAULT, notebook)
+
         # Copy selected files to NOTES_PATH
         self.selected_files = self.dropboxTemp.selected_files
         self.fileNames = self.dropboxTemp.fileName
         for i, file in enumerate(self.selected_files):
             with open(file, 'rb') as file:
                 data = file.read()
-                if self.fileNames[i] not in os.listdir(NOTES_PATH):
-                    with open(NOTES_PATH+f"{self.fileNames[i]}", 'wb') as file:
+                if self.fileNames[i] not in os.listdir(NOTES_PATH+notebook):
+                    with open(NOTES_PATH+notebook+"/"+f"{self.fileNames[i]}", 'wb') as file:
                         file.write(data)
-        
-        # Getting data
-        notebook = self.notebook.text()
-        refMarker = (self.refMarkerStart.text(), self.refMarkerEnd.text())
 
         # Starting the progress bar
         self.layOut.addWidget(self.progressBar, 7, 0)

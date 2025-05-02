@@ -18,10 +18,10 @@ class Loader:
         fileFormat = self.fileName.split(".")[1]
         print(fileFormat)
         if fileFormat != "pdf": 
-            with open(NOTES_PATH+self.fileName, 'r') as file:
+            with open(NOTES_PATH+self.notebook.split(".")[0]+"/"+self.fileName, 'r') as file:
                 text = [file.read()]
         else:
-            reader = PdfReader(NOTES_PATH+self.fileName)
+            reader = PdfReader(NOTES_PATH+self.notebook.split(".")[0]+"/"+self.fileName)
             number_of_pages = len(reader.pages)
             text = []
             for i in range(number_of_pages):

@@ -1,6 +1,7 @@
 from src.processing import Loader
 from src.matcher import Matcher
 from src.writer import Writer
+from src.init import createNotebook, createVault
 from src.config import DATA_PATH, NOTES_EMBEDDED_PATH, NOTES_PATH, OBSIDIAN_VAULT
 import os
 import json
@@ -16,7 +17,7 @@ class Main:
     # each note is separate from eachother and you don't risk rewriting a certain note to the wrong notebook
     # TODO add a way to connect different files to different notebooks
     def load(self, notebook):
-        notes = os.listdir(NOTES_PATH)
+        notes = os.listdir(NOTES_PATH+notebook)
         if ".gitignore" in notes:
             notes.remove(".gitignore")
         if ".DS_Store" in notes:
@@ -38,7 +39,7 @@ class Main:
             yield index
      
     def write(self, refMarker, notebook):
-        notes = os.listdir(NOTES_PATH)
+        notes = os.listdir(NOTES_PATH+notebook)
         if ".gitignore" in notes:
             notes.remove(".gitignore")
         if ".DS_Store" in notes:
