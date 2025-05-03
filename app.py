@@ -10,6 +10,7 @@ from src.config import NOTES_PATH, OBSIDIAN_VAULT
 svg_path = 'data/svg/'
 
 # TODO get this progress bar to update dynamically with the yields
+# TODO be able to reset the window after pdfs have been loaded
 def clearLayout(layout):
     if layout is not None:
         while layout.count():
